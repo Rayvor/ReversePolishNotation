@@ -53,8 +53,8 @@ namespace RPN
                 }
             }
 
-            if (stack.Count > 0)            
-                rpnString += string.Concat(string.Join("", stack.ToArray()).Where(c => c != '('));            
+            if (stack.Count > 0)
+                rpnString += string.Concat(stack.ToArray().Where(c => c != '('));
 
             return rpnString;
         }
