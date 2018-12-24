@@ -11,109 +11,122 @@ namespace RPN
             while (true)
             {
                 var input = Console.ReadLine();
-                var rpnString = ParseToRpn(input);
+                var rpn = ParseToRpn(input.Split(' '));
 
-                Console.WriteLine(GetResult(rpnString));
+                decimal result = GetResult(rpn);
+
+                Console.WriteLine(result);
             }
         }
 
-        static string ParseToRpn(string input)
+        static List<string> ParseToRpn(string[] input)
         {
-            var stack = new Stack<char>();
-            var rpnString = string.Empty;
+            var stack = new Stack<string>();
+            var rpn = new List<string>();
 
-            foreach (char c in input.ToArray())
+            foreach (string s in input)
             {
-                if (char.IsDigit(c))
-                    rpnString += c;
+                if (IsDigit(s))
+                    rpn.Add(s);
                 else
                 {
-                    if (c == ')')
+                    if (s == ")")
                     {
-                        while (stack.Count > 0 && stack.Peek() != '(')
-                            rpnString += stack.Pop();
+                        while (stack.Count > 0 && stack.Peek() != "(")
+                            rpn.Add(stack.Pop());
 
                         if (stack.Count > 0)
                             stack.Pop();
 
                         continue;
                     } 
-                    else if (c == '(')
+                    else if (s == "(")
                     {
-                        stack.Push(c);
+                        stack.Push(s);
 
                         continue;
                     }
 
-                    if (stack.Count > 0 && stack.Peek() != '(')
-                        if (GetPriority(c) <= GetPriority(stack.Peek()))
-                            rpnString += stack.Pop();
+                    if (stack.Count > 0 && stack.Peek() != "(")
+                        if (GetPriority(s) <= GetPriority(stack.Peek()))
+                            rpn.Add(stack.Pop());
 
-                    stack.Push(c);
+                    stack.Push(s);
                 }
             }
 
             if (stack.Count > 0)
-                rpnString += string.Concat(stack.Where(c => c != '('));
+                rpn.AddRange(stack.Where(s => s != "("));
 
-            return rpnString;
+            return rpn;
         }
 
-        static decimal GetResult(string rpnString)
+        static decimal GetResult(List<string> rpn)
         {
-            if (rpnString == string.Empty)
+            if (rpn.Count == 0)
                 return 0;
 
             var stack = new Stack<decimal>();
 
-            foreach (char c in rpnString.ToArray())
+            foreach (string s in rpn)
             {
-                if (char.IsDigit(c))
-                    stack.Push(decimal.Parse(c.ToString()));
+                if (IsDigit(s))
+                    stack.Push(decimal.Parse(s));
                 else
-                    stack.Push(GetMathFunc(c)(stack.Pop(), stack.Pop()));
+                    stack.Push(GetMathFunc(s)(stack.Pop(), stack.Pop()));
             }
 
             return stack.Pop();
         }
 
-        static Func<decimal, decimal, decimal> GetMathFunc(char command)
+        static Func<decimal, decimal, decimal> GetMathFunc(string command)
         {
             switch (command)
             {
-                case '+':
+                case "+":
                     return (y, x) => x + y;
-                case '-':
+                case "-":
                     return (y, x) => x - y;
-                case '/':
+                case "/":
                     return (y, x) => x / y;
-                case '*':
+                case "*":
                     return (y, x) => x * y;
-                case '^':
+                case "^":
                     return (y, x) => (decimal)Math.Pow((double)x, (double)y);
                 default:
                     return null;
             }
         }
 
-        static int GetPriority(char symbol)
+        static int GetPriority(string symbol)
         {
             switch (symbol)
             {
-                case '^':
+                case "^":
                     return 4;
-                case '*':
-                case '/':
+                case "*":
+                case "/":
                     return 3;
-                case '+':
-                case '-':
+                case "+":
+                case "-":
                     return 2;
-                case '(':
-                case ')':
+                case "(":
+                case ")":
                     return 1;
                 default:
                     return 0;
             }
+        }
+
+        static bool IsDigit(string str)
+        {
+            foreach (char c in str)
+            {
+                if (!char.IsDigit(c))
+                    return false;
+            }
+
+            return true;
         }
     }
 }
