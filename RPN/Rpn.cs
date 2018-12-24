@@ -18,13 +18,19 @@ namespace RPN
             get
             {
                 var inputArray = SplitByNums(_input);
-                var rpn = ParseToRpn(inputArray);
+                var rpn = ConvertToRpn(inputArray);
 
                 return GetResult(rpn);
             }
         }
 
-        private List<string> ParseToRpn(string[] input)
+        /// <summary>
+        /// Convert input string array to RPN collection
+        /// Example: ["12", "(", "3", "+", "21", ")"] => ["12", "3", "21", "+", "*"]
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        private List<string> ConvertToRpn(string[] input)
         {
             var stack = new Stack<string>();
             var rpn = new List<string>();
@@ -65,7 +71,13 @@ namespace RPN
 
             return rpn;
         }
-
+        
+        /// <summary>
+        /// Calculate result from RPN input collection
+        /// Example: ["12", "3", "21", "+", "*"] => 288
+        /// </summary>
+        /// <param name="rpn"></param>
+        /// <returns></returns>
         private decimal GetResult(List<string> rpn)
         {
             if (rpn.Count == 0)
@@ -131,6 +143,13 @@ namespace RPN
             return true;
         }
 
+        
+        /// <summary>
+        /// Separate input string by numbers and arithmetic characters
+        /// Example: "12*(3+21)" => ["12", "(", "3", "+", "21", ")"]
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         private string[] SplitByNums(string str)
         {
             var indexesForSubstring = new List<int>();
